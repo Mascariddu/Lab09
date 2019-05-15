@@ -1,5 +1,6 @@
 package it.polito.tdp.borders.db;
 
+import java.security.interfaces.RSAKey;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +24,7 @@ public class BordersDAO {
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
-				System.out.format("%d %s %s\n", rs.getInt("ccode"), rs.getString("StateAbb"), rs.getString("StateNme"));
+				result.add(new Country(rs.getInt("ccode"),rs.getString("StateAbb"),rs.getString("StateNme")));
 			}
 			
 			conn.close();
@@ -38,7 +39,28 @@ public class BordersDAO {
 
 	public List<Border> getCountryPairs(int anno) {
 
-		System.out.println("TODO -- BordersDAO -- getCountryPairs(int anno)");
-		return new ArrayList<Border>();
+		String sql = "SELECT state1no AS cod1, state2no AS cod2 from contiguity c WHERE c.YEAR <= ? AND c.conttype = ? AND c.state1no < c.state2no";
+		List<Border> result = new ArrayList<Border>();
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, anno);
+			st.setInt(2, 1);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				result.add(new Border(rs.getInt("cod1"),rs.getInt("cod2")));
+			}
+			
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
 	}
+	
 }

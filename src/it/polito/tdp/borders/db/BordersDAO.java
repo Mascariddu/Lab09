@@ -62,5 +62,29 @@ public class BordersDAO {
 			throw new RuntimeException("Error Connection Database");
 		}
 	}
+
+	public Country getPaeseByNome(String value) {
+		String sql = "SELECT c.StateAbb as abb,c.CCode as cod,c.StateNme as name FROM country c WHERE c.StateNme = ?";
+		Country result = null;
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, value);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				result=new Country(rs.getInt("cod"),rs.getString("abb"),rs.getString("name"));
+			}
+			
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
 	
 }
